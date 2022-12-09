@@ -10,6 +10,20 @@ let numberOfGetRequests = 0;
 
 app.use(cors());
 
+app.get("/unsafe", (req, res) => {
+  const curr = ++numberOfGetRequests;
+
+  console.log(curr);
+
+  setTimeout(() => {
+    if (curr % 10 === 0) {
+      res.status(500).send({ error: "You are unlucky" });
+      return;
+    }
+    res.json({ todos, reqNum: curr });
+  }, 3000);
+});
+
 app.get("/:id", (req, res) => {
   console.log("Will return here", req.params.id);
   const id = Number(req.params.id as string);
@@ -25,20 +39,6 @@ app.get("/", (req, res) => {
   console.log(curr);
 
   setTimeout(() => {
-    res.json({ todos, reqNum: curr });
-  }, 3000);
-});
-
-app.get("/unsafe", (req, res) => {
-  const curr = ++numberOfGetRequests;
-
-  console.log(curr);
-
-  setTimeout(() => {
-    if (curr % 10 === 0) {
-      res.status(500).send({ error: "You are unlucky" });
-      return;
-    }
     res.json({ todos, reqNum: curr });
   }, 3000);
 });

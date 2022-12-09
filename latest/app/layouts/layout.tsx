@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ReactNode } from "react";
+import { ReactNode, Suspense } from "react";
 
 interface Response {
   todos: string[];
@@ -13,11 +13,11 @@ const getDataSsr = async (url: string) => {
   return (await res.json()) as Response;
 };
 
-export default async function Layout({ children }: { children: ReactNode }) {
+async function LayoutComponent({ children }: { children: ReactNode }) {
   const data = await getDataSsr("http://localhost:3002");
 
   return (
-    <div>
+    <Suspense fallback={<h1>Global loading</h1>}>
       <h1>Hello to layouts.</h1>
 
       <ul>
@@ -30,6 +30,18 @@ export default async function Layout({ children }: { children: ReactNode }) {
         ))}
       </ul>
       {children}
-    </div>
+    </Suspense>
+  );
+}
+
+export default async function Layout({ children }: { children: ReactNode }) {
+  return (
+    <Suspense fallback={<h1>Global loading</h1>}>
+      {/**
+       * Typescript is yet to add support for async server components.
+       * */}
+      {/* @ts-ignore  */}
+      <LayoutComponent>{children}</LayoutComponent>
+    </Suspense>
   );
 }
